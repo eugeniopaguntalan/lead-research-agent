@@ -95,55 +95,15 @@ Daily Report
 
 ### Runtime
 
-* Node.js
-* TypeScript
+* Node.js 20+
+* TypeScript 5.3+
 
-### AI
+### Dependencies
 
-* OpenAI API
-
-### Search
-
-* Brave Search API
-
-### Storage
-
-* Neon Postgres
-
-### Email
-
-* Resend
-
-### Automation
-
-* GitHub Actions
-
----
-
-## Project Structure
-
-```text
-.
-├── CLAUDE.md
-├── README.md
-├── DEVELOPER.md
-├── skills
-│   ├── coding-standards.md
-│   ├── lead-research.md
-│   └── reporting.md
-│
-├── src
-│   ├── agents
-│   ├── jobs
-│   ├── services
-│   ├── repositories
-│   ├── schemas
-│   ├── types
-│   ├── config
-│   └── shared
-│
-└── tests
-```
+* **Zod** - Runtime validation
+* **Brave Search API** - Business discovery
+* **Neon Postgres** - Lead storage (future)
+* **Vitest** - Testing framework
 
 ---
 
@@ -151,123 +111,221 @@ Daily Report
 
 ### Prerequisites
 
-* Node.js 22+
-* npm
-* OpenAI API Key
-* Brave Search API Key
-* Neon Database
-* Resend Account
+* Node.js 20 or higher
+* npm or yarn
+* Brave Search API key
+* OpenAI API key (future use)
 
-### Install
+### Setup
+
+1. Clone the repository:
+
+```bash
+git clone <repository-url>
+cd lead-research-agent
+```
+
+2. Install dependencies:
 
 ```bash
 npm install
 ```
 
----
-
-## Environment Variables
-
-Create a `.env` file:
-
-```env
-OPENAI_API_KEY=
-BRAVE_API_KEY=
-DATABASE_URL=
-RESEND_API_KEY=
-REPORT_RECIPIENT_EMAIL=
-```
-
----
-
-## Development
-
-Run locally:
+3. Create environment file:
 
 ```bash
-npm run dev
+cp .env.example .env
 ```
 
-Run tests:
+4. Configure environment variables in `.env`:
 
-```bash
-npm test
 ```
-
-Run linting:
-
-```bash
-npm run lint
-```
-
-Run type checking:
-
-```bash
-npm run typecheck
+BRAVE_API_KEY=your_brave_api_key
+OPENAI_API_KEY=your_openai_api_key
+DATABASE_URL=postgresql://...
+RESEND_API_KEY=your_resend_api_key
+REPORT_RECIPIENT_EMAIL=your@email.com
 ```
 
 ---
 
-## Running Lead Discovery
+## Usage
 
-Execute the daily lead discovery workflow:
+### Run Daily Lead Research
 
 ```bash
 npm run leads:daily
 ```
 
-Example input:
+This will:
+1. Search for businesses matching the configured criteria
+2. Validate and deduplicate results
+3. Save leads to the repository
+4. Generate a daily report in `reports/`
 
-```json
-{
-  "productName": "Queue Management SaaS",
-  "targetIndustries": [
-    "Veterinary Clinic",
-    "Medical Clinic",
-    "Auto Repair Shop"
-  ],
-  "targetCountries": [
-    "Australia"
-  ],
-  "maxResults": 50
-}
+### Development Mode
+
+```bash
+npm run dev
+```
+
+### Run Tests
+
+```bash
+npm test
+```
+
+### Type Check
+
+```bash
+npm run typecheck
+```
+
+### Build Project
+
+```bash
+npm run build
 ```
 
 ---
 
-## Example Output
+## Project Structure
 
-```json
-{
-  "businessName": "ABC Veterinary Clinic",
-  "industry": "Veterinary Clinic",
-  "website": "https://example.com",
-  "location": "Melbourne",
-  "country": "Australia",
-  "phoneNumber": "+61 3 1234 5678",
-  "emailAddress": "info@example.com",
-  "sourceUrl": "https://example.com"
-}
+```
+src/
+  agents/
+    lead-research-agent.ts       # Orchestrates lead discovery workflow
+  
+  jobs/
+    daily-lead-research-job.ts   # Daily execution job
+  
+  services/
+    brave-search-service.ts      # Brave Search integration
+    report-service.ts            # Report generation
+    search-service.interface.ts  # Search service abstraction
+  
+  repositories/
+    lead-repository.ts           # Lead persistence with deduplication
+  
+  schemas/
+    lead.schema.ts               # Lead validation schemas
+    env.schema.ts                # Environment validation
+  
+  types/
+    lead.ts                      # Domain types
+  
+  config/
+    env.ts                       # Environment configuration
+  
+  shared/
+    logger.ts                    # Logging utilities
+    errors.ts                    # Custom error types
+
+tests/
+  agents/                        # Agent tests
+  repositories/                  # Repository tests
+  schemas/                       # Validation tests
+  services/                      # Service tests
+  fixtures/                      # Test fixtures
 ```
 
 ---
 
-## GitHub Actions
+## Configuration
 
-The project supports scheduled execution using GitHub Actions.
+Search criteria can be modified in [src/jobs/daily-lead-research-job.ts](src/jobs/daily-lead-research-job.ts):
 
-Example:
-
-```yaml
-on:
-  schedule:
-    - cron: "0 0 * * *"
-  workflow_dispatch:
+```typescript
+const searchInput: LeadSearchInput = {
+  productName: 'Queue Management SaaS',
+  productDescription: 'Customer queue management system',
+  targetIndustries: ['Auto Repair', 'Veterinary Clinic', 'Salon'],
+  targetCountries: ['Australia'],
+  targetRegions: ['Melbourne', 'Sydney'],
+  maxResults: 20
+};
 ```
 
-This enables automatic lead discovery and report generation.
+---
+
+## Testing
+
+The project includes comprehensive unit tests:
+
+* **Repository tests** - Deduplication logic
+* **Validation tests** - Schema validation
+* **Agent tests** - Orchestration logic
+* **Service tests** - Report generation
+
+Run tests:
+
+```bash
+npm test              # Run all tests
+npm run test:watch   # Watch mode
+```
 
 ---
+
+## Lead Deduplication
+
+Leads are automatically deduplicated using:
+
+1. **Website Domain** - Normalized to exclude www and protocol
+2. **Business Name** - Normalized to lowercase, trimmed, punctuation removed
+3. **Phone Number** - Normalized to digits only
+
+All three checks must pass for a lead to be saved.
+
+---
+
+## Reports
+
+Daily reports are generated in Markdown format and saved to the `reports/` directory.
+
+Report includes:
+
+* Summary statistics
+* Top industries
+* Lead details with contact information
+* Next action recommendations
+
+Example: `reports/daily-lead-report-2024-01-15.md`
+
+---
+
+## Development Standards
+
+This project follows strict coding standards:
+
+* **TypeScript strict mode** enabled
+* **No `any` types** allowed
+* **Explicit typing** for public APIs
+* **Thin agents** focused on orchestration
+* **Services** for external integrations
+* **Repositories** for data persistence
+
+See [skills/coding-standards.md](skills/coding-standards.md) for complete guidelines.
+
+---
+
+## Future Enhancements
+
+Planned features (not yet implemented):
+
+* Lead scoring and analysis
+* Product-market fit evaluation
+* Outreach message generation
+* CRM integrations
+* Email automation
+* Web scraping for detailed business data
+* PostgreSQL persistence
+* GitHub Actions automation
+
+---
+
+## License
+
+MIT
 
 ## Roadmap
 
