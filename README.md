@@ -107,6 +107,25 @@ Daily Report
 
 ---
 
+## 🎯 Quick Demo (No API Keys Required!)
+
+Want to see the agent in action without setting up API keys? Run the demo:
+
+```bash
+npm install
+npm run demo
+```
+
+This will:
+- Use mock data to simulate real business discovery
+- Show the complete workflow from search to report generation
+- Generate a sample lead report in `./reports/`
+- Perfect for portfolio demonstrations and testing
+
+The demo mode uses the `MockSearchService` which provides realistic search results without making actual API calls.
+
+---
+
 ## Installation
 
 ### Prerequisites
@@ -139,12 +158,20 @@ cp .env.example .env
 
 4. Configure environment variables in `.env`:
 
+**For Demo/Portfolio (No API keys needed):**
+```
+DEMO_MODE=true
+NODE_ENV=development
+```
+
+**For Production:**
 ```
 BRAVE_API_KEY=your_brave_api_key
 OPENAI_API_KEY=your_openai_api_key
 DATABASE_URL=postgresql://...
 RESEND_API_KEY=your_resend_api_key
 REPORT_RECIPIENT_EMAIL=your@email.com
+NODE_ENV=production
 ```
 
 ---

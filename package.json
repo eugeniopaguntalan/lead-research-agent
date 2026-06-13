@@ -8,6 +8,7 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "dev": "tsx src/jobs/daily-lead-research-job.ts",
+    "demo": "DEMO_MODE=true tsx src/demo/run-demo.ts",
     "leads:daily": "tsx src/jobs/daily-lead-research-job.ts",
     "test": "vitest run",
     "test:watch": "vitest",
